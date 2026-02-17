@@ -32,7 +32,8 @@ jobs:
       - run: flutter --version
       - run: flutter pub get
       - run: flutter build web --release --base-href /${{ steps.version.outputs.repository }}/
-
+      - name: add .nojekyll
+        run: touch build/web/.nojekyll
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
