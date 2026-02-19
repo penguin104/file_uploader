@@ -1,4 +1,3 @@
-import 'package:file_uploader/main.dart';
 import 'package:flutter/material.dart';
 
 // メインの色
