@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 int primaryColor = 0xFF1D3646;
 
 // main card padding
-double card_padding = 20;
+double card_padding = 10;
 
 class UploaderMainPage extends StatelessWidget {
   const UploaderMainPage({super.key});
