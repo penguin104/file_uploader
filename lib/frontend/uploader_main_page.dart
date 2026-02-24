@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 // メインの色
 int primaryColor = 0xFF1D3646;
@@ -6,8 +9,31 @@ int primaryColor = 0xFF1D3646;
 // main card padding
 double card_padding = 10;
 
-class UploaderMainPage extends StatelessWidget {
+class UploaderMainPage extends StatefulWidget {
   const UploaderMainPage({super.key});
+
+  @override
+  State<UploaderMainPage> createState() => _UploaderMainPageState();
+}
+
+class _UploaderMainPageState extends State<UploaderMainPage> {
+  // ファイル選択
+  Future pickFile() async {
+    // ファイルデータを格納する変数
+    final List<File> _images = [];
+    // image_pickerのインスタンスを生成
+    final picker = ImagePicker();
+
+    // 選択したファイルを変数に格納する
+    final List<XFile>? pickedFiles = await picker.pickMultiImage();
+
+    setState(() {
+      pickedFiles!.forEach((pickFile) {
+        _images.add(File(pickFile.path));
+      });
+    });
+    return _images;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +78,9 @@ class UploaderMainPage extends StatelessWidget {
 
     // 画像を選択するボタン
     var selectPicture = ElevatedButton.icon(
-      onPressed: () {},
+      onPressed: () {
+        pickFile();
+      },
       label: Text("Pick Image"),
       icon: Icon(Icons.image),
     );
