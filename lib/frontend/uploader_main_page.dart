@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,21 +18,31 @@ class UploaderMainPage extends StatefulWidget {
 }
 
 class _UploaderMainPageState extends State<UploaderMainPage> {
+  
+  // 画像のデータ
+  List<Uint8List> images = [];
   // ファイル選択
   Future pickFile() async {
     // ファイルデータを格納する変数
-    final List<File> _images = [];
+    final List<Uint8List> _images = [];
     // image_pickerのインスタンスを生成
     final picker = ImagePicker();
 
     // 選択したファイルを変数に格納する
     final List<XFile>? pickedFiles = await picker.pickMultiImage();
 
+    final List fileBytesList = await Future.wait(
+      pickedFiles!.map((e) => e.readAsBytes()),
+    );
+
+    images.clear();
     setState(() {
-      pickedFiles!.forEach((pickFile) {
-        _images.add(File(pickFile.path));
+      fileBytesList.forEach((pickFile) {
+        _images.add(pickFile);
       });
     });
+    images = _images;
+
     return _images;
   }
 
@@ -40,7 +51,6 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
     // 画面のサイズ
 
     final mediaSize = MediaQuery.of(context).size;
-
     double cardWidth = 80;
     double cardHeight = mediaSize.height * 0.3;
 
@@ -79,6 +89,7 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
     // 画像を選択するボタン
     var selectPicture = ElevatedButton.icon(
       onPressed: () {
+        // 画像を選択
         pickFile();
       },
       label: Text("Pick Image"),
@@ -98,8 +109,18 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       height: cardHeight,
     );
 
+    var testView = Expanded(
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          return Container(child:Image.memory(images[index]));
+        },
+      ),
+    );
+
     var mainContent = Column(
-      children: [mainCard],
+      children: [mainCard, testView],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
     var content = MaterialApp(
