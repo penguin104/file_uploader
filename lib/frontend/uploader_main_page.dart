@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:file_uploader/backend/datas.dart';
+import 'package:file_uploader/frontend/uploader_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 // メインの色
 int primaryColor = 0xFF1D3646;
@@ -18,9 +21,8 @@ class UploaderMainPage extends StatefulWidget {
 }
 
 class _UploaderMainPageState extends State<UploaderMainPage> {
-  
   // 画像のデータ
-  List<Uint8List> images = [];
+  List<ImageData> images = [];
   // ファイル選択
   Future pickFile() async {
     // ファイルデータを格納する変数
@@ -36,12 +38,26 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
     );
 
     images.clear();
+    _images.clear();
     setState(() {
       fileBytesList.forEach((pickFile) {
         _images.add(pickFile);
       });
     });
-    images = _images;
+    // images = _images;
+    // 取得したデータをもとにクラスとして配列に格納していく
+    _images.forEach((image) {
+      String fileName = DateFormat(
+        "yyyy-MM-dd_HH-mm-ss",
+      ).format(DateTime.now()); // デフォルトのファイル名は時刻
+      ImageData imageInstance = ImageData(
+        _images.indexOf(image), //id
+        image, //data
+        fileName, // file name
+      );
+      images.add(imageInstance);
+      print(imageInstance);
+    });
 
     return _images;
   }
@@ -53,12 +69,13 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
     final mediaSize = MediaQuery.of(context).size;
     double cardWidth = 80;
     double cardHeight = mediaSize.height * 0.3;
-
     if (mediaSize.width > mediaSize.height) {
+      // 横が広い
       cardWidth = mediaSize.width * 0.6;
       cardHeight = mediaSize.height * 0.3;
     } else {
-      cardWidth = mediaSize.width * 0.8;
+      // 縦が広い
+      cardWidth = mediaSize.width * 0.9;
       cardHeight = mediaSize.height * 0.2;
     }
 
@@ -94,6 +111,10 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       },
       label: Text("Pick Image"),
       icon: Icon(Icons.image),
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(Color(primaryColor)),
+        backgroundColor: WidgetStatePropertyAll(Colors.white),
+      ),
     );
 
     var mainCard = Container(
@@ -109,18 +130,20 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       height: cardHeight,
     );
 
-    var testView = Expanded(
+    var listView = Expanded(
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: images.length,
         itemBuilder: (context, index) {
-          return Container(child:Image.memory(images[index]));
+          var listTile = ImageListTile(imageData: images[index]);
+
+          return listTile;
         },
       ),
     );
 
     var mainContent = Column(
-      children: [mainCard, testView],
+      children: [mainCard, listView],
       crossAxisAlignment: CrossAxisAlignment.center,
     );
     var content = MaterialApp(
