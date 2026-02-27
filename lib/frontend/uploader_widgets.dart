@@ -39,15 +39,27 @@ class _ImageListTileState extends State<ImageListTile> {
 
     // =========================================================================
 
+    // Textfieldの内容
+    final TextEditingController _controller = TextEditingController(
+      text: widget.imageData.fileName,
+    );
+
     final fileNameField = Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
+        controller: _controller,
         style: TextStyle(color: Color(primaryColor)),
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           filled: true,
           fillColor: Colors.white,
+          label: Text("file name")
         ),
+        onChanged: (text) {
+          widget.imageData.fileName = _controller.text;
+          // print(widget.imageData.fileName);
+        },
+        
       ),
     );
 

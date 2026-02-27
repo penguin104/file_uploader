@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_uploader/backend/datas.dart';
+import 'package:file_uploader/backend/methods.dart';
 import 'package:file_uploader/frontend/uploader_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,11 +46,13 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       });
     });
     // images = _images;
+    // デフォルトのファイル名
+    final defaultFileName = DateFormat(
+      "yyyy-MM-dd_HH-mm-ss_",
+    ).format(DateTime.now()); // デフォルトのファイル名は時刻
     // 取得したデータをもとにクラスとして配列に格納していく
     _images.forEach((image) {
-      String fileName = DateFormat(
-        "yyyy-MM-dd_HH-mm-ss",
-      ).format(DateTime.now()); // デフォルトのファイル名は時刻
+      String fileName = defaultFileName + _images.indexOf(image).toString();
       ImageData imageInstance = ImageData(
         _images.indexOf(image), //id
         image, //data
@@ -79,7 +82,11 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       cardHeight = mediaSize.height * 0.2;
     }
 
-    var appBar = AppBar(
+    // url fieldのコントローラ
+    final TextEditingController _urlController = TextEditingController();
+    _urlController.text = "https://";
+
+    final appBar = AppBar(
       title: Text("File Uploader", style: TextStyle(color: Colors.white)),
       leading: IconButton(
         onPressed: () {},
@@ -90,21 +97,26 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
 
     // URLを入力するフィールド
     double fieldWidth = cardWidth * 0.8;
-    var urlField = Container(
+    final urlField = Container(
       child: TextField(
+        controller: _urlController,
         style: TextStyle(color: Color(primaryColor)),
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           filled: true,
           fillColor: Colors.white,
+          label: Text("URL"),
         ),
+        onChanged: (text) {
+          print(_urlController.text);
+        },
       ),
       padding: EdgeInsets.all(card_padding),
       width: fieldWidth,
     );
 
     // 画像を選択するボタン
-    var selectPicture = ElevatedButton.icon(
+    final selectPicture = ElevatedButton.icon(
       onPressed: () {
         // 画像を選択
         pickFile();
@@ -117,11 +129,31 @@ class _UploaderMainPageState extends State<UploaderMainPage> {
       ),
     );
 
-    var mainCard = Container(
+    // アップロード開始ボタン
+    final uploadButton = IconButton(
+      onPressed: () {
+        print(_urlController.text);
+        uplaodImage(images, _urlController.text);
+        setState(() {});
+      },
+      icon: Icon(Icons.file_upload),
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(Color(primaryColor)),
+        backgroundColor: WidgetStatePropertyAll(Colors.white),
+      ),
+    );
+
+    final mainCard = Container(
       child: Card(
         color: Color(primaryColor),
         child: Column(
-          children: [urlField, selectPicture],
+          children: [
+            urlField,
+            Row(
+              children: [selectPicture, uploadButton],
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            ),
+          ],
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
         ),
